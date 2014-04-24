@@ -3,7 +3,7 @@
  * FFHTopo :: Map API abstraction library
  *
  * Description:
- * 	abstraction of basic functionality of Google Maps API
+ *	abstraction of basic functionality of Google Maps API
  * 
  * Depends:
  *	FFHTopo Utils (mtutils.js)
@@ -13,12 +13,19 @@
  * @revision $Id: mtmap-google.js 5M 2007-11-04 14:07:05Z (lokal) $
  */
 /** 
- * Anpassungen durch Matthias Sch�fer, tox-freifunk gmx de, 24.08.2009 20:00 UTC
- * - Scrollen �ber Mausrad
+ * Anpassungen durch Matthias Schäfer, tox-freifunk gmx de, 24.08.2009 20:00 UTC
+ * - Scrollen über Mausrad
  */
 
-mtMapGoogleVersion = 0.10;
-mtMapGoogleVersionString = mtMapGoogleVersion + " $Rev: 5M $"
+var mtMapGoogleVersion = 0.10;
+var mtMapGoogleVersionString = mtMapGoogleVersion + " $Rev: 5M $";
+
+/**
+ * Änderungen kwm 23.01.2014
+ * Farben für Knoten und Tunnel geändert
+ * Tunnel jetzt grau
+ * Knoten grün
+ */
 
 /**
  * Map Abstraction for Google Maps API 2.x
@@ -28,20 +35,14 @@ mtMapGoogleVersionString = mtMapGoogleVersion + " $Rev: 5M $"
  * 
  * @version 0.10
  * @param {HTMLElement} layer The layer in which the map will be drawn.
+ * @param {Object} mtConfig
+ * @param {Object} cmanager
  * @constructor
  */
-
-/**
- * �nderungen kwm 23.01.2014
- * Farben f�r Knoten und Tunnel ge�ndert
- * Tunnel jetzt grau
- * Knoten gr�n
- */
-
 function mtMapGoogle(layer, mtConfig, cmanager) {
     this.mtConfig = mtConfig;
     var cManager = cmanager;
-    var markers =  new Array();
+    var markers = new Array();
     var map = new google.maps.Map(
             layer,
             {scaleControl: true,
@@ -55,7 +56,7 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
     var geocoder = new google.maps.Geocoder();
     var gclocale = "";
     this.map = map;
-    google.maps.event.addListener(this.map, 'bounds_changed', function() {
+    google.maps.event.addListener(this.map, 'bounds_changed', function () {
         var i = 5;
         google.maps.event.clearListeners(map, 'bounds_changed');
         cManager.setContext('topo');
@@ -63,25 +64,25 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
     });
 
     this.type = "google";
-    
+
     var openedInfoWindow = null;
 
     /**
      * Adds a specific overlay to the map
      * @param {GOverlay} obj The overlay to be added
      */
-    this.addOverlay = function(obj) {
+    this.addOverlay = function (obj) {
         markers.push(obj);
         obj.setMap(map);
-    }
+    };
     this.addClusterOverlay = this.addOverlay;
 
     /**
      * Adds standard user interface controls to the map
      */
-    this.addUiControls = function() {
+    this.addUiControls = function () {
 
-    }
+    };
 
     /**
      * Calculates the angle for a vector from p1 to p2
@@ -91,7 +92,7 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * 
      * @return {float} angle
      */
-    this.angle = function(p1, p2) {
+    this.angle = function (p1, p2) {
         var p3 = this.createPoint(p1.lat(), p2.lng());
         var dang = Math.atan(this.distance(p2, p3) / this.distance(p1, p3)) / (Math.PI / 180.0);
 
@@ -112,7 +113,7 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
         }
 
         return dang;
-    }
+    };
 
     /**
      * Binds a specific callback function to an event fired by an object
@@ -133,9 +134,9 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * 
      * @return {google.maps.EventHandler} Event handle for unbindEventHandler() 
      */
-    this.bindEventHandler = function(object, event, callback) {
+    this.bindEventHandler = function (object, event, callback) {
         return google.maps.event.addListener(object, event, callback);
-    }
+    };
 
     /**
      * Binds a specific callback function that offers data for map information windows to a marker 
@@ -146,21 +147,19 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * @param {GMarker} marker The marker to which the function will be bound
      * @param {Function} callback The callback function that offers the information data
      */
-    this.bindInfoWindow = function(marker, callback) {
+    this.bindInfoWindow = function (marker, callback) {
         marker._mtRetrInfo = callback;
         google.maps.event.addListener(marker, 'click', this._openInfoWindow);
-    }
+    };
 
     /**
      * Removes all overlays from the map
      */
-    this.clearOverlays = function() {
-        while (markers[0])
-        {
+    this.clearOverlays = function () {
+        while (markers[0]) {
             markers.pop().setMap(null);
         }
-
-    }
+    };
 
     /**
      * Creates a color pool which offers 10 distinguishable color references in maptype specific format
@@ -171,7 +170,7 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * 
      * @constructor
      */
-    this.colorPool = function() {
+    this.colorPool = function () {
         var ccol = 0;
         var colr = ['#FF0000', '#808080', '#0000FF', '#000000', '#FFFF00',
             '#A52A2A', '#808080', '#FFA500', '#800080', '#FFFFFF'];
@@ -186,8 +185,8 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
                 ccol++;
             }
             return colr[ccol - 1];
-        }
-    }
+        };
+    };
 
     /**
      * Converts a maptype specific color reference fetched from colorPool() to an
@@ -196,9 +195,9 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * @param {String} color color reference
      * @return {String} hexadecimal color code
      */
-    this.colorToHex = function(color) {
+    this.colorToHex = function (color) {
         return color;
-    }
+    };
 
     /**
      * Creates and returns a group object which can handler multiple overlays at once
@@ -207,9 +206,9 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * 
      * @return {_GMapOverlayGroup} Group Object
      */
-    this.createGroup = function() {
+    this.createGroup = function () {
         return new this._GMapOverlayGroup(this);
-    }
+    };
 
     /**
      * Creates a new map type specific marker object
@@ -221,9 +220,9 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      *
      * @return {GMarker} marker 
      */
-    this.createMarker = function(point, icon) {
+    this.createMarker = function (point, icon) {
         return new google.maps.Marker({position: point, icon: icon, clickable: true});
-    }
+    };
 
     /**
      * Creates a new maptype specific point from geo coordinates
@@ -235,9 +234,9 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * 
      * @return {GLatLng} point
      */
-    this.createPoint = function(lat, lng) {
+    this.createPoint = function (lat, lng) {
         return new google.maps.LatLng(lat, lng);
-    }
+    };
 
     /**
      * Creates a new maptype specific polyline object
@@ -251,9 +250,9 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * 
      * @return {GPolyline} polyline
      */
-    this.createPolyline = function(points, color, width, opac) {
+    this.createPolyline = function (points, color, width, opac) {
         return new google.maps.Polyline({path: points, strokeColor: color, strokeWeight: width, strokeOpacity: opac});
-    }
+    };
 
     /**
      * Calculates the distance between points a and b in meters
@@ -263,13 +262,13 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * 
      * @return {float} distance (m)
      */
-    this.distance = function(a, b) {
+    this.distance = function (a, b) {
         var alpha = (90 - a.lat()) * (Math.PI / 180.0);
         var beta = (90 - b.lat()) * (Math.PI / 180.0);
         var gamma = (b.lng() - a.lng()) * (Math.PI / 180.0);
         var c = Math.acos(Math.sin(alpha) * Math.sin(beta) * Math.cos(gamma) + Math.cos(alpha) * Math.cos(beta));
         return c * 6367000;
-    }
+    };
 
     /**
      * Starts an asynchronous address resolving attempt for a given address
@@ -279,23 +278,23 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * @param {String} adr the address to be resolved
      * @param {Function} callback the callback function
      */
-    this.geocode = function(adr, callback) {
+    this.geocode = function (adr, callback) {
         geocoder.geocode({address: adr + gclocale}, callback);
-    }
+    };
 
     /**
      * Returns an object that describes the current mapstate
      * 
      * @return {object}
      */
-    this.getMapState = function() {
+    this.getMapState = function () {
         return {
             lat: this.map.getCenter().lat(),
             lng: this.map.getCenter().lng(),
             zoom: this.map.getZoom(),
             type: this.map.getCurrentMapType().getUrlArg()
-        }
-    }
+        };
+    };
 
     /**
      * Returns the maptype specific map object
@@ -303,9 +302,9 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * 
      * @return {GMap2} native map object
      */
-    this.getMapObject = function() {
+    this.getMapObject = function () {
         return map;
-    }
+    };
 
     /**
      * Extracts the URL from the maptype specific icon object
@@ -313,9 +312,9 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * @param {GIcon} icon icon
      * @return {String} URL
      */
-    this.iconToUrl = function(icon) {
+    this.iconToUrl = function (icon) {
         return icon.url;
-    }
+    };
 
     /**
      * Creates a color pool which offers 10 distinguishable color references in maptype specific format.
@@ -326,7 +325,7 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * 
      * @constructor
      */
-    this.iconPool = function() {
+    this.iconPool = function () {
         var cico = 0;
         var colr = ['black', 'green', 'yellow', 'red', 'black',
             'brown', 'gray', 'orange', 'purple', 'white'];
@@ -336,7 +335,7 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
          * 
          * @return {GIcon} icon
          */
-        this.fetch = function() {
+        this.fetch = function () {
             if (cico < colr.length) {
                 cico++;
             }
@@ -345,8 +344,8 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
             icon.size = new google.maps.Size(12, 20);
 
             return icon;
-        }
-    }
+        };
+    };
 
     /**
      * Extracts the point from a given marker
@@ -354,9 +353,9 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * @param {GMarker} marker marker
      * @return {GLatLng} point
      */
-    this.markerGetPoint = function(marker) {
+    this.markerGetPoint = function (marker) {
         return marker.getPosition();
-    }
+    };
 
     /**
      * Extracts the latitude and longitude information from a given point into an array
@@ -364,18 +363,18 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * @param {GLatLng} point point
      * @return {Array} [latitude, longitude]
      */
-    this.pointGetLatLng = function(point) {
+    this.pointGetLatLng = function (point) {
         return [point.lat(), point.lng()];
-    }
+    };
 
     /**
      * Removes given overlay from the map
      * 
      * @param {GOverlay} obj overlay
      */
-    this.removeOverlay = function(obj) {
+    this.removeOverlay = function (obj) {
         obj.setMap(null);
-    }
+    };
     this.removeClusterOverlay = this.removeOverlay;
 
     /**
@@ -384,9 +383,9 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * @param {GLatLng} point point
      * @param {integer} zoom zoomlevel
      */
-    this.setCenter = function(point, zoom) {
+    this.setCenter = function (point, zoom) {
         map.setCenter(point);
-    }
+    };
 
     /**
      * Sets locale information of the geocoder
@@ -394,35 +393,35 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * 
      * @param {String} locale
      */
-    this.setGeocoderLocale = function(locale) {
+    this.setGeocoderLocale = function (locale) {
         gclocale = locale;
-    }
+    };
 
     /**
      * Sets the map center to the given marker and opens the information window for it
      * 
      * @param {GMarker} marker marker
      */
-    this.showMarker = function(marker) {
+    this.showMarker = function (marker) {
         map.panTo(marker.getPosition());
         this._openInfoWindow(marker);
-    }
+    };
 
     /**
      * Unbinds given event handler
      * 
      * @param {GEventHandler} handler handler
      */
-    this.unbindEventHandler = function(handler) {
+    this.unbindEventHandler = function (handler) {
         google.maps.event.removeListener(handler);
-    }
+    };
 
     /**
      * @ignore
      */
-    this._openInfoWindow = function(marker) {
+    this._openInfoWindow = function (marker) {
         if (this._mtRetrInfo) {
-            var marker = this;
+            marker = this;
         }
         if (marker._mtRetrInfo) {
             if (openedInfoWindow !== null) {
@@ -441,7 +440,7 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
             infowin2.open(map, marker);
             openedInfoWindow = infowin2;
         }
-    }
+    };
 
     /**
      * VEShapeLayer emulation class
@@ -453,63 +452,62 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      * @constructor
      * @param {GMap2} gmap map abstraction object
      */
-    this._GMapOverlayGroup = function(gmap) {
+    this._GMapOverlayGroup = function (gmap) {
         var a = [];
         var shown = false;
-        var gmap = gmap;
 
         /**
          * Adds an overlay to the group
          * 
          * @param {GOverlay} shape overlay
          */
-        this.AddShape = function(shape) {
+        this.AddShape = function (shape) {
             a.push(shape);
             if (shown) {
                 gmap.addOverlay(shape);
             }
-        }
+        };
 
         /**
          * Deletes an overlay from the group
          * 
          * @param {GOverlay} shape overlay
          */
-        this.DeleteShape = function(shape) {
+        this.DeleteShape = function (shape) {
             if (shown) {
                 gmap.removeOverlay(shape);
             }
             a.remove(shape);
-        }
+        };
 
         /**
          * Deletes all overlays from the group
          */
-        this.DeleteAllShapes = function() {
+        this.DeleteAllShapes = function () {
             a.clear();
-        }
+        };
 
         /**
          * Shows all overlays of the group on the map
          */
-        this.Show = function() {
+        this.Show = function () {
             a.iterate(gmap.addOverlay);
             shown = true;
-        }
+        };
 
         /**
          * Hides all overlay of the group from the map 
          */
-        this.Hide = function() {
+        this.Hide = function () {
             a.iterate(gmap.removeOverlay);
             shown = false;
-        }
+        };
 
         /**
          * @ignore
          */
-        this._each = function(callback) {
+        this._each = function (callback) {
             a.iterate(callback);
-        }
-    }
+        };
+    };
 }

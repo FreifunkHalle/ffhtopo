@@ -2,10 +2,10 @@
  * FFHTopo :: Client Map Building Engine
  *
  * Description:
- * 	Map building and data output
+ *  Map building and data output
  * 
  * Depends:
- * 	FFHTopo Utils
+ *  FFHTopo Utils
  *  FFHTopo Map API abstraction library
  *  FFHTopo Widget Helper
  *
@@ -14,7 +14,7 @@
  * @revision $Id: mtengine.js 24M 2007-11-04 14:05:17Z (lokal) $
  */
 /** 
- * Anpassungen durch Matthias Sch�fer, tox-freifunk gmx de, 26.08.2009 0:00 UTC
+ * Anpassungen durch Matthias Schäfer, tox-freifunk gmx de, 26.08.2009 0:00 UTC
  * - Boardtyp "WHR-108G"
  * - Boardtyp "Buffalo WHR-G54" -> "Buffalo WHR(-HP)-G54"
  * 14.09.2009 18:00 UTC
@@ -24,12 +24,13 @@
  */
 
 /**
- * �nderungen von kwm am 23.01.2014
+ * Änderungen von kwm am 23.01.2014
  * Ansicht Internetzugang auskommentiert
  */
 
-mtEngineVersion = 0.97;
-mtEngineVersionString = mtEngineVersion
+var mtEngineVersion = 0.97;
+var mtEngineVersionString = mtEngineVersion;
+
 
 /**
  * Loads and initialises FFHTopo engine
@@ -43,13 +44,14 @@ mtEngineVersionString = mtEngineVersion
  * @config {String} gclocale Geocoder locale
  */
 function mtLoad(mtConfig) {
-    var cManager = new mtContextManager($(mtConfig.menulayer))
-    if (mtConfig.mapapi == 'gmap3') {
-        var map = new mtMapGoogle($(mtConfig.maplayer), $(mtConfig), cManager);
-    } else if (mtConfig.mapapi == 've6') {
-        var map = new mtMapVirtualEarth(mtConfig.maplayer);
-    } else if (mtConfig.mapapi == 'osm') {
-        var map = new mtMapOSM($(mtConfig.maplayer), $(mtConfig), cManager);
+    var cManager = new mtContextManager($(mtConfig.menulayer));
+    var map;
+    if (mtConfig.mapapi === 'gmap3') {
+        map = new mtMapGoogle($(mtConfig.maplayer), $(mtConfig), cManager);
+    } else if (mtConfig.mapapi === 've6') {
+        map = new mtMapVirtualEarth(mtConfig.maplayer);
+    } else if (mtConfig.mapapi === 'osm') {
+        map = new mtMapOSM($(mtConfig.maplayer), $(mtConfig), cManager);
     }
 
     map.addUiControls();
@@ -61,13 +63,12 @@ function mtLoad(mtConfig) {
 
     cManager.putContext('topo', 'Topographie', cTopo);
 //    cManager.putContext('hna', 'Internetzugang', cHNA);		//auskommentiert von kwm
-    if (mtConfig.mapapi == 'gmap3') {
-    } else if (mtConfig.mapapi == 've6' || mtConfig.mapapi == 'osm') {
+    if (mtConfig.mapapi === 'gmap3' || mtConfig.mapapi === 've6' || mtConfig.mapapi === 'osm') {
         cManager.setContext('topo');
     }
 
     $(mtConfig.helplayer).appendChild($n('a', {href: 'https://www.freifunk-halle.net/mediawiki/wiki/FFHTopo'},
-    '\u00dcber FFHTopo ' + mtEngineVersionString));
+        'Über FFHTopo ' + mtEngineVersionString));
 }
 
 /**
@@ -124,54 +125,61 @@ function mtContext(gmap, widgets) {
      * @param {String} name
      * @param {Object} marker
      */
-    var _addMenu = function(typeid, id, name, marker) {
+    var _addMenu = function (typeid, id, name, marker) {
         type[typeid].menu.push({id: id, name: name});
         menureg[id] = marker;
-    }
+    };
 
     /**
      * Handler for legend click events
+     * 
+     * @param {Object} e
      */
-    var _handleLegendClick = function(e) {
-        id = e.target.id.substr(13);
-        if (type[id] && type[id].status == 1) {
+    var _handleLegendClick = function (e) {
+        var id = e.target.id.substr(13);
+        if (type[id] && type[id].status === 1) {
             self.hideType(id);
-        } else if (type[id] && type[id].status == 0) {
+        } else if (type[id] && type[id].status === 0) {
             self.showType(id);
         }
-    }
+    };
 
     /**
      * Standard handler for selector click events
+     * 
+     * @param {Object} e
      */
-    var _handleSelectorClick = function(e) {
+    var _handleSelectorClick = function (e) {
         self.selectMenuEntry(e.target.value);
-    }
+    };
 
     /**
      * Rebuild all available item selectors
      */
-    var _rebuildItemSelector = function() {
+    var _rebuildItemSelector = function () {
         var x = document.getElementsByName('mtItemSelector');
 
         for (var i = 0; i < x.length; i++) {
             var selector = $(x[i]);
             selector.removeChildren();
 
-            if (typeof newSelector == "undefined") {
+            if ((typeof newSelector) === "undefined") {
                 var newSelector = $(self._buildItemSelector());
             }
 
             newSelector.cloneChildren(selector);
         }
-    }
+    };
 
     /**
      * Compare function for selector sorting
+     * 
+     *  @param {Object} a
+     *  @param {Object} b
      */
-    var _sortSelector = function(a, b) {
+    var _sortSelector = function (a, b) {
         return natcompare(a.name, b.name);
-    }
+    };
 
     /**
      * Builds an item selector of active overlays
@@ -179,7 +187,7 @@ function mtContext(gmap, widgets) {
      * @param {Function} callback
      * @return {HTMLElement} block
      */
-    this._buildItemSelector = function(callback) {
+    this._buildItemSelector = function (callback) {
         var selector = $n('select', {className: 'mtItemSelector', 'name': 'mtItemSelector'});
         if (!callback) {
             selector.bind('change', _handleSelectorClick);
@@ -202,7 +210,7 @@ function mtContext(gmap, widgets) {
             selector.appendChild($n('option', {value: menu[m].id}, menu[m].name));
         }
         return selector;
-    }
+    };
 
     /**
      * Adds a marker to the map application and registers menu entries for it
@@ -214,13 +222,13 @@ function mtContext(gmap, widgets) {
      * 
      * @return {Object} marker
      */
-    this.addMarker = function(point, typeid, id, caption) {
+    this.addMarker = function (point, typeid, id, caption) {
         var marker = this.map.createMarker(point, type[typeid].icon);
         this.addOverlay(marker, typeid);
         _addMenu(typeid, id, caption, marker);
         _rebuildItemSelector();
         return marker;
-    }
+    };
 
     /**
      * Assign an overlay to an overlay type
@@ -228,12 +236,12 @@ function mtContext(gmap, widgets) {
      * @param {Object} overlay
      * @param {String} typeid
      */
-    this.addOverlay = function(overlay, typeid) {
+    this.addOverlay = function (overlay, typeid) {
         if (!type[typeid]) {
             throw mtError;
         }
         type[typeid].mobj.AddShape(overlay);
-    }
+    };
 
     /**
      * Adds a new overlay type
@@ -241,25 +249,25 @@ function mtContext(gmap, widgets) {
      * @param {String} id
      * @param {String} name
      * @param {Object} icon
-     * @param {String} typeid
-     * @param {Boolean} status
+     * @param {String} ttype
+     * @param {Boolean} cluster
      */
-    this.addType = function(id, name, icon, ttype, cluster) {
+    this.addType = function (id, name, icon, ttype, cluster) {
         type[id] = {id: id, name: name, icon: icon, mobj: this.map.createGroup(cluster), menu: [], status: 0, type: ttype};
-    }
+    };
 
     /**
      * Builds the legend widget for the current context
      * 
      * @return {HTMLElement} block
      */
-    this.buildLegendWidget = function() {
+    this.buildLegendWidget = function () {
         var legend = mtWidget('Legende:');
         for (var i in type) {
             var lcheck = $n('input', {type: 'checkbox', name: 'mtLegendCheck' + i, id: 'mtLegendCheck' + i});
             lcheck.checked = (type[i].status);
 
-            if (type[i].type == 'marker') {
+            if (type[i].type === 'marker') {
                 var licon = $n('img', {src: this.map.iconToUrl(type[i].icon), alt: type[i].name});
             } else {
                 var licon = $n('span', null, '---');
@@ -272,47 +280,47 @@ function mtContext(gmap, widgets) {
             legend.appendChild(lentry.append([lcheck, licon, ' ' + type[i].name]));
         }
         return legend;
-    }
+    };
 
-    this.buildLicenseWidget = function() {
+    this.buildLicenseWidget = function () {
         var license = mtWidget('Lizenz:');
         var lentry = $n('div', {id: 'mtLicenseEntry', className: 'mtLicenseEntry'});
         var la1 = $n('a', {href: "http://www.openstreetmap.org/"});
         la1.append(["OpenStreetMap"]);
         var la2 = $n('a', {href: "http://opendatacommons.org/licenses/odbl/"});
         la2.append(["ODbL"]);
-        lentry.append(['Daten von ',la1,' - Veröffentlicht unter ',la2 ])
+        lentry.append(['Daten von ', la1, ' - Veröffentlicht unter ', la2]);
         license.appendChild(lentry);
         return license;
-    }
+    };
 
     /**
      * Cleans up map and sidebar
      * 
      * This is usually called by disable() before context switching 
      */
-    this.cleanup = function() {
+    this.cleanup = function () {
         this.widgets.clear();
         this.map.clearOverlays();
         for (var i = 0; i < eventHandler.length; i++) {
             this.map.unbindEventHandler(eventHandler[i].handler);
         }
-    }
+    };
 
     /**
      * This function is invoked by the context manager whenever a context switch
      * was requested from this context to another. It should clean up map and sidebar.
      */
-    this.disable = function() {
+    this.disable = function () {
         this.cleanup();
-    }
+    };
 
     /**
      * Redraws context objects
      * 
      * This is usually called by enable() after context switching
      */
-    this.display = function() {
+    this.display = function () {
         for (var i = 0; i < eventHandler.length; i++) {
             this.map.bindEventHandler(eventHandler[i].object, eventHandler[i].type, eventHandler[i].callback);
         }
@@ -320,13 +328,13 @@ function mtContext(gmap, widgets) {
             initialized = this.init();
         }
         for (var i in type) {
-            if (type[i].status == 1) {
+            if (type[i].status === 1) {
                 type[i].status = 0;
                 this.showType(i);
             }
         }
         this.widgets.draw();
-    }
+    };
 
     /**
      * Removes the marker and is references from the context and the map
@@ -334,17 +342,17 @@ function mtContext(gmap, widgets) {
      * @param {String} id marker unique id
      * @param {String} typeid type to which the marker belongs
      */
-    this.dropMarker = function(id, typeid) {
+    this.dropMarker = function (id, typeid) {
         var marker = menureg[id];
         menureg[id] = null;
         this.dropOverlay(marker, typeid);
         for (var i = 0; i < type[typeid].menu.length; i++) {
-            if (type[typeid].menu[i].id == id) {
+            if (type[typeid].menu[i].id === id) {
                 type[typeid].menu.splice(i, 1);
             }
         }
         _rebuildItemSelector();
-    }
+    };
 
     /**
      * Removes an overlay from the map
@@ -352,17 +360,17 @@ function mtContext(gmap, widgets) {
      * @param {Object} overlay
      * @param {String} typeid type to which the overlay belongs
      */
-    this.dropOverlay = function(overlay, typeid) {
+    this.dropOverlay = function (overlay, typeid) {
         type[typeid].mobj.DeleteShape(overlay);
-    }
+    };
 
     /**
      * This function is invoked by the context manager whenever a context switch
      * was requested from another context to the current. It should initialize the context and redraw overlays and sidebars.
      */
-    this.enable = function() {
+    this.enable = function () {
         this.display();
-    }
+    };
 
     /**
      * Returns a registered overlay
@@ -370,9 +378,9 @@ function mtContext(gmap, widgets) {
      * @param {String} id
      * @return {Object} overlay
      */
-    this.getRegistered = function(id) {
+    this.getRegistered = function (id) {
         return menureg[id];
-    }
+    };
 
     /**
      * Returns a specific type object
@@ -380,16 +388,16 @@ function mtContext(gmap, widgets) {
      * @param {String} id
      * @return {Object} type
      */
-    this.getType = function(id) {
+    this.getType = function (id) {
         return type[id];
-    }
+    };
 
     /**
      * Hides all overlays of a specific type
      * 
      * @param {String} typeid
      */
-    this.hideType = function(typeid) {
+    this.hideType = function (typeid) {
         var oldstat = type[typeid].status;
         type[typeid].status = 0;
 
@@ -397,69 +405,69 @@ function mtContext(gmap, widgets) {
             $('mtLegendCheck' + typeid).checked = false;
         }
 
-        if (oldstat != 0) {
+        if (oldstat !== 0) {
             type[typeid].mobj.Hide();
         }
 
         _rebuildItemSelector();
-    }
+    };
 
     /**
      * Initialises the context
      * 
      * This is usually called by enable() once after the first activation of a context
      */
-    this.init = function() {
+    this.init = function () {
         return true;
-    }
+    };
 
     /**
      * Locks the context manager to prevent context switching
      */
-    this.lock = function() {
+    this.lock = function () {
         cManager.lock();
-    }
+    };
 
     /**
      * Assign a specific context manager to this context
      * 
      * @param {mtContextManager} manager
      */
-    this.setContextManager = function(manager) {
+    this.setContextManager = function (manager) {
         cManager = manager;
-    }
+    };
 
     /**
      * Registers a special event on the map
      * 
      * See bindEventHandler() on any FFHTopo map object for further details
      * 
-     * @param {Object} overlay
+     * @param {Object} object
      * @param {String} type
      * @param {Function} callback
      */
-    this.registerMapEvent = function(object, type, callback) {
+    this.registerMapEvent = function (object, type, callback) {
         eventHandler.push({type: type, object: object, callback: callback,
             handler: this.map.bindEventHandler(object, type, callback)});
-    }
+    };
 
     /**
      * Shows a registered overlay object on the map
      * 
      * @param {String} id overlay id
      */
-    this.selectMenuEntry = function(id) {
+    this.selectMenuEntry = function (id) {
         if (menureg[id]) {
             this.map.showMarker(menureg[id]);
         }
-    }
+    };
 
     /**
      * Shows all overlays of a specific type on the map
      * 
      * @param {String} typeid
      */
-    this.showType = function(typeid) {
+    this.showType = function (typeid) {
         if (!type[typeid]) {
             throw mtError;
         }
@@ -471,19 +479,19 @@ function mtContext(gmap, widgets) {
             $('mtLegendCheck' + typeid).checked = true;
         }
 
-        if (oldstat != 1) {
+        if (oldstat !== 1) {
             type[typeid].mobj.Show();
         }
 
         _rebuildItemSelector();
-    }
+    };
 
     /**
      * Unlocks the context manager to allow context switching
      */
-    this.unlock = function() {
+    this.unlock = function () {
         cManager.unlock();
-    }
+    };
 }
 
 /**
@@ -491,11 +499,12 @@ function mtContext(gmap, widgets) {
  * 
  * Manages several map context and handles switching
  * 
+ * @param {Object} menu
+ * 
  * @constructor
  */
-function mtContextManager(menu) {
+function mtContextManager (menu) {
     var self = this;
-    var menu = menu;
     var cont = null;
     var list = {};
     var lcks = false;
@@ -505,14 +514,14 @@ function mtContextManager(menu) {
      */
     this.lock = function() {
         lcks = true;
-    }
+    };
 
     /**
      * Unlocks the context manager
      */
     this.unlock = function() {
         lcks = false;
-    }
+    };
 
     /**
      * Adds a context to be managed with the context manager
@@ -521,17 +530,17 @@ function mtContextManager(menu) {
      * @param {String} name context name to be displayed
      * @param {mtContext} context context object itself
      */
-    this.putContext = function(id, name, context) {
+    this.putContext = function (id, name, context) {
         list[id] = {id: id, context: context, name: name};
         _menuAppend(id, name);
-    }
+    };
 
     /**
      * Selects a new context
      * 
      * @param {String} id
      */
-    this.setContext = function(id) {
+    this.setContext = function (id) {
         if (lcks) {
             return;
         }
@@ -542,7 +551,7 @@ function mtContextManager(menu) {
         cont = list[id];
         cont.context.setContextManager(this);
         cont.context.enable();
-    }
+    };
 
     /**
      * Appends a new entry for a context to the menu
@@ -550,29 +559,33 @@ function mtContextManager(menu) {
      * @param {String} id
      * @param {String} name
      */
-    var _menuAppend = function(id, name) {
+    var _menuAppend = function (id, name) {
         var span = $n('span', {id: 'mtMenuEntry' + id, className: 'mtMenuInactive'}, name);
         span.bind('click', _handleClick);
         menu.appendChild(span);
-    }
+    };
 
     /**
      * Event handler for user context switch request
+     * 
+     * @param {Object} e
      */
-    var _handleClick = function(e) {
+    var _handleClick = function (e) {
         id = e.target.id.substr(11);
-        if (!cont || id != cont.id) {
+        if (!cont || id !== cont.id) {
             self.setContext(id);
         }
-    }
+    };
 
     /**
      * Menu activation visulaisation
+     * 
+     * @param {Object} id
      */
-    var _menuActivate = function(id) {
+    var _menuActivate = function (id) {
         if (cont) {
             $('mtMenuEntry' + cont.id).className = 'mtMenuInactive';
         }
         $('mtMenuEntry' + id).className = 'mtMenuActive';
-    }
+    };
 }
