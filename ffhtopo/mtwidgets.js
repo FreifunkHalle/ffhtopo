@@ -283,10 +283,19 @@ function mtSelectTab(id, context) {
     var node = node;
 
     var calculate = function(e) {
-        var a = context.map.markerGetPoint(context.getRegistered(id));
-        var b = context.map.markerGetPoint(context.getRegistered(e.target.value));
+        var target = context.getRegistered(e.target.value);
+        var src = context.getRegistered(id);
+        var a = context.map.markerGetPoint(src);
+        var b = context.map.markerGetPoint(target);
         $(did).replaceChild(document.createTextNode(Math.round(context.map.distance(a, b))), $(did).childNodes[1]);
         $(did).replaceChild(document.createTextNode(Math.round(context.map.angle(a, b))), $(did).childNodes[5]);
+        if (context.getType('customlink').status){
+            var aLatLng = context.map.pointGetLatLng(a);
+            var bLatLng = context.map.pointGetLatLng(b);
+            var srcp = {latitude: aLatLng[0], longitude: aLatLng[1]};
+            var targetp = {latitude: bLatLng[0], longitude: bLatLng[1]};
+            context.addLinkLine(srcp, targetp, "customlink");
+        }
     };
 
     var dist = $n('span', null, 'Entfernung: ');

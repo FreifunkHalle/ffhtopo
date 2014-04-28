@@ -129,6 +129,10 @@ function mtContext(gmap, widgets) {
         type[typeid].menu.push({id: id, name: name});
         menureg[id] = marker;
     };
+    
+    this.getMarker = function (id) {
+        return menureg[id];
+    }
 
     /**
      * Handler for legend click events

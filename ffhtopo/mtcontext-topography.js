@@ -64,6 +64,7 @@ function mtContextTopography(map, server, widgets) {
         this.addType('linkolsr', 'OLSR-Link', pool.fetch(), 'polyline', false);
 //		this.addType('linkbatman', 'B.A.T.M.A.N-Link', pool.fetch(), 'polyline', false);
         this.addType('linktunnel', 'Tunnel-Link', pool.fetch(), 'polyline', false);
+        this.addType('customlink', 'Eigener Link', pool.fetch(), 'polyline', false);
 
         var map = self.map.getMapObject();
         map._mtContext = self;
@@ -108,7 +109,7 @@ function mtContextTopography(map, server, widgets) {
                     return this._mtInformation;
                 };
                 self.map.bindInfoWindow(m, _mtRetrInfo);
-                self.registerMapEvent(m, "click", function () {
+                self.registerMapEvent(m, "dblclick", function () {
                     return _dropCustomMarker("custom" + mid);
                 });
                 self.map.showMarker(m);
@@ -275,7 +276,7 @@ function mtContextTopography(map, server, widgets) {
         };
         self.map.bindInfoWindow(m, _infowin);
     };
-
+    
     var _addLinkLine = function (src, dest, type, qual) {
         if (src.llaccuracy === 0 || dest.llaccuracy === 0 || (self.getRegistered(dest.ipv4) && typeof dest.links === "object" && dest.links[type + "_" + src])) {
             return;
@@ -290,9 +291,13 @@ function mtContextTopography(map, server, widgets) {
         } else if (type === "tunnel" || type === "tunnelgate") {
             var link = self.map.createPolyline([srcp, destp], self.getType("linktunnel").icon, 1, 1);
             self.addOverlay(link, "linktunnel");
+        } else if (type === "customlink") {
+            var link = self.map.createPolyline([srcp, destp], self.getType("customlink").icon, 1, 1);
+            self.addOverlay(link, "customlink");
         } else if (type === "batman") {
             var link = self.map.createPolyline([srcp, destp], self.getType("linkbatman").icon, 2, qual);
             self.addOverlay(link, "linkbatman");
         }
     };
+    this.addLinkLine = _addLinkLine;
 }

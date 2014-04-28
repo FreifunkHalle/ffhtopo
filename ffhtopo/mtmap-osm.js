@@ -40,8 +40,8 @@ function mtMapOSM(layer, mtConfig, cmanager) {
     this.mtConfig = mtConfig;
     var cManager = cmanager;
     OpenLayers.Lang.setCode('de');
-    var markers = new OpenLayers.Layer.Markers("Markers");
     var lines = new OpenLayers.Layer.Vector("Connections");
+    var markers = new OpenLayers.Layer.Markers("Markers");
 
     var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
     var toProjection = new OpenLayers.Projection('EPSG:3857');
@@ -56,7 +56,7 @@ function mtMapOSM(layer, mtConfig, cmanager) {
     });
     map.addLayer(new OpenLayers.Layer.OSM());
 
-    map.addLayers([markers, lines]);
+    map.addLayers([lines, markers]);
 
     var gclocale = "";
     var openedInfoWindow = null;
@@ -169,6 +169,8 @@ function mtMapOSM(layer, mtConfig, cmanager) {
     this.bindInfoWindow = function (marker, callback) {
         marker._mtRetrInfo = callback;
         marker.events.register("click", marker, this._openInfoWindow);
+        marker.events.register("mouseover", marker, function (e){
+            e.currentTarget.style.cursor = 'pointer';});
     };
 
     /**
