@@ -360,7 +360,7 @@ function mtMapOSM(layer, mtConfig, cmanager) {
      */
     this.iconPool = function () {
         var cico = 0;
-        var colr = ['black', 'green', 'yellow', 'blue', 'red', 'black', 
+        var colr = ['black', 'green', 'blue', 'yellow', 'blue', 'red', 'black', 
             'brown', 'gray', 'orange', 'purple', 'white'];
 
         /**

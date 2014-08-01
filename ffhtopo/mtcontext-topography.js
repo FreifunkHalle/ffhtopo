@@ -22,11 +22,11 @@
  */
 
 /**
- * Änderung durch kwm am 23.01.2014
- * OLSR-Link Checkbox aktiviert
- * Tunnel-Link Checkbox aktiviert
- * Checkbox Knoten (HNA) entfernt
- * eigener Punkt auskommentiert, nicht mehr notwendig, da im Meshkit enthalten
+ * Änderung durch kwm 
+ * OLSR-Link Checkbox aktiviert am 23.01.2014
+ * Tunnel-Link Checkbox deaktiviert am 28.07.2014
+ * Checkbox Knoten (HNA) entfernt am 23.01.2014
+ * eigener Punkt auskommentiert, nicht mehr notwendig, da im Meshkit enthalten am 28.07.2014
  */
 
 mtContextTopography.inherits(mtContext);
@@ -56,7 +56,7 @@ function mtContextTopography(map, server, widgets) {
         var pool = new self.map.iconPool();
         this.addType('custom', 'Eigener Punkt', pool.fetch(), 'marker', true);
         this.addType('node', 'Knoten', pool.fetch(), 'marker', true);
-//		 this.addType('nodehna', 'Knoten (HNA)', pool.fetch(), 'marker', true);	//auskommentiert von kwm
+	this.addType('nodehna', 'Knoten (HNA)', pool.fetch(), 'marker', true);	//auskommentiert von kwm
         this.addType('nodeinactive', 'Inaktiver Knoten', pool.fetch(), 'marker', true);
 
         pool = new self.map.colorPool();
@@ -180,12 +180,12 @@ function mtContextTopography(map, server, widgets) {
         if (map.type === "osm")
             self.widgets.addWidget(self.buildLicenseWidget());
 
-        self.showType('custom');
-//        self.showType('nodehna');	//auskommentiert von kwm
+        self.showType('custom');		//auskommentiert von kwm
+        self.showType('nodehna');	//auskommentiert von kwm
         self.showType('nodeinactive');
         self.showType('node');
-        self.showType('linkolsr');		//eingef�gt von kwm 
-        self.showType('linktunnel');	//eingefügt von kwm
+        self.showType('linkolsr');		//eingesetzt von kwm 
+//        self.showType('linktunnel');	//auskommentiert von kwm auf bitte von stromer
 
         self.unlock();
     };

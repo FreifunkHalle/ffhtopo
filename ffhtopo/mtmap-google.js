@@ -327,7 +327,7 @@ function mtMapGoogle(layer, mtConfig, cmanager) {
      */
     this.iconPool = function () {
         var cico = 0;
-        var colr = ['black', 'green', 'yellow', 'red', 'black',
+        var colr = ['black', 'green', 'blue', 'yellow', 'red', 'black',
             'brown', 'gray', 'orange', 'purple', 'white'];
 
         /**
